@@ -1,0 +1,27 @@
+.hero-container {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+}
+.bg-video {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: -1;
+  pointer-events: none;
+}
+.overlay {
+  position: absolute;
+  bottom: 20%;
+  left: 5%;
+  color: white;
+}
+.text-slide {
+  animation: slideIn 1s ease-in-out;
+}
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}

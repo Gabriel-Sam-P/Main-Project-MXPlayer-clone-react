@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import {
   Box,
   Typography,
@@ -19,22 +18,36 @@ import {
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
-const HeroSlider = () => {
-  const [slides, setSlides] = useState([]);
+const HeaderPage = () => {
+  // Static slider data (your JSON file data)
+  const sliderData = [
+    {
+      id: 1,
+      title: "BINDIYA KE BAHUBALI",
+      description: "Hindi | Comedy, Web Series",
+      video: "/videos/Bindiya.mp4",
+    },
+    {
+      id: 2,
+      title: "DOCTOR",
+      description: "Action | Thriller",
+      video: "/videos/Doctor.mp4",
+    },
+    {
+      id: 3,
+      title: "AASHIQUI 2",
+      description: "Drama | Romance",
+      video: "/videos/Aashiqui2.mp4",
+    },
+  ];
+
+  const [slides] = useState(sliderData);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [muted, setMuted] = useState(true);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
-
-  // Fetch slides from API
-  useEffect(() => {
-    axios
-      .get("http://localhost:3001/Slider")
-      .then((res) => setSlides(res.data))
-      .catch((err) => console.error("Error fetching slider:", err));
-  }, []);
 
   // Auto-slide every 10 seconds
   useEffect(() => {
@@ -174,7 +187,7 @@ const HeroSlider = () => {
         </Grid>
       </Grid>
 
-      {/* Navigation Arrows (hidden on tablets) */}
+      {/* Navigation Arrows */}
       {!isMobile && !isTablet && (
         <Box
           sx={{
@@ -191,7 +204,9 @@ const HeroSlider = () => {
         >
           <IconButton
             onClick={() =>
-              setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length)
+              setCurrentIndex(
+                (prev) => (prev - 1 + slides.length) % slides.length
+              )
             }
             sx={{
               bgcolor: "rgba(255,255,255,0.2)",
@@ -237,7 +252,7 @@ const HeroSlider = () => {
         {muted ? <FaVolumeMute /> : <FaVolumeUp />}
       </IconButton>
 
-      {/* Dots Indicator (clickable) */}
+      {/* Dots Indicator */}
       <Box
         sx={{
           position: "absolute",
@@ -268,6 +283,4 @@ const HeroSlider = () => {
   );
 };
 
-export default HeroSlider;
-
-
+export default HeaderPage;

@@ -1,13 +1,16 @@
 import './App.css';
 import HomePage from './Component/HomePage';
-import Navbar from './Component/Navbar';
+import TrailerVideoPage from './Component/Pages/TrailerVideoPage';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 function App() {
   return (
-    <>
-      <Navbar/>
-      <HomePage/>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/trailer/:id" element={<TrailerVideoPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

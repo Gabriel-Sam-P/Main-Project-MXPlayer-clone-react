@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef } from "react";
 import {
   AppBar,
   Box,
@@ -16,46 +16,68 @@ import {
   Divider,
   ListItemIcon,
   ListItemText,
-} from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import SearchIcon from '@mui/icons-material/Search';
-import PlayCircleIcon from '@mui/icons-material/PlayCircle';
-import HomeIcon from '@mui/icons-material/Home';
-import AddIcon from '@mui/icons-material/Add';
-import TranslateIcon from '@mui/icons-material/Translate';
-import HistoryIcon from '@mui/icons-material/History';
-import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
-import CastIcon from '@mui/icons-material/Cast';
-import DownloadIcon from '@mui/icons-material/Download';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import Logo from '../Assest/Mx.jpg';
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+
+import MenuIcon from "@mui/icons-material/Menu";
+import SearchIcon from "@mui/icons-material/Search";
+import PlayCircleIcon from "@mui/icons-material/PlayCircle";
+import AddIcon from "@mui/icons-material/Add";
+import TranslateIcon from "@mui/icons-material/Translate";
+import HistoryIcon from "@mui/icons-material/History";
+import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
+import CastIcon from "@mui/icons-material/Cast";
+import DownloadIcon from "@mui/icons-material/Download";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import Logo from "../Assest/Mx.jpg";
+
+const TMDB_API_KEY = "ce759924c0c73922a3e4cf611fbbc05c";
 
 const Navbar = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery('(min-width:600px) and (max-width:1024px)');
-  const isDesktop = useMediaQuery('(min-width:1025px)');
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isDesktop = useMediaQuery("(min-width:1025px)");
+  const navigate = useNavigate();
 
-  const navLinks = ['Shows', 'Movies', 'MX VDesi', 'New In 2025', 'Trailers'];
+  const navLinks = ["Movies", "TvShows", "New In 2025", "Trailers"];
 
   const menuItems = {
-    Shows: ['Reality Shows', 'Drama Series', 'Comedy Shows'],
-    Movies: ['Action', 'Horror', 'Romantic'],
-    'MX VDesi': ['Hindi Dubbed', 'Web Series'],
+    TvShows: ["Action Shows", "Comedy Shows", "Drama Shows"],
+    Movies: ["Action", "Adventure", "Comedy", "Horror"],
   };
 
   const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedMenu, setSelectedMenu] = useState('');
+  const [selectedMenu, setSelectedMenu] = useState("");
   const isMenuOpen = Boolean(anchorEl);
   const closeTimer = useRef(null);
 
-  // Dropdown menu state for Menu icon button
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const isDropdownOpen = Boolean(menuAnchorEl);
 
   const [kidsMode, setKidsMode] = useState(false);
 
-  // Handle hover on nav links for dropdown submenu (desktop)
+  // 🔹 Scroll to homepage sections
+  const scrollToSection = (item) => {
+    const mapping = {
+      Action: "Action-movies",
+      Adventure: "Adventure-movies",
+      Comedy: "Comedy-movies",
+      Horror: "Horror-movies",
+      "Action Shows": "Action-tv",
+      "Comedy Shows": "Comedy-tv",
+      "Drama Shows": "Drama-tv",
+    };
+
+    const targetId = mapping[item];
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      navigate("/"); // fallback
+    }
+  };
+
+  // 🔹 Menu hover logic
   const handleMenuOpen = (event, menuLabel) => {
     if (menuItems[menuLabel]) {
       clearTimeout(closeTimer.current);
@@ -63,72 +85,133 @@ const Navbar = () => {
       setSelectedMenu(menuLabel);
     } else {
       setAnchorEl(null);
-      setSelectedMenu('');
+      setSelectedMenu("");
     }
   };
 
-  // Close submenu with slight delay to prevent flicker
   const handleMenuClose = () => {
     closeTimer.current = setTimeout(() => {
       setAnchorEl(null);
-      setSelectedMenu('');
+      setSelectedMenu("");
     }, 150);
   };
 
-  // Open main dropdown from menu icon
-  const handleDropdownOpen = (event) => {
-    setMenuAnchorEl(event.currentTarget);
-  };
+  const handleDropdownOpen = (event) => setMenuAnchorEl(event.currentTarget);
+  const handleDropdownClose = () => setMenuAnchorEl(null);
 
-  const handleDropdownClose = () => {
-    setMenuAnchorEl(null);
-  };
-
-  // Top and bottom dropdown items replacing drawer content
   const dropdownItemsTop = [
-    { icon: <AddIcon />, text: 'My List' },
-    { icon: <TranslateIcon />, text: 'Language Preferences' },
-    { icon: <HistoryIcon />, text: 'Watch History' },
+    { icon: <AddIcon />, text: "My List" },
+    { icon: <TranslateIcon />, text: "Language Preferences" },
+    { icon: <HistoryIcon />, text: "Watch History" },
   ];
 
   const dropdownItemsBottom = [
-    { icon: <CastIcon />, text: 'Activate TV' },
-    { icon: <DownloadIcon />, text: 'Download App' },
-    { icon: <HelpOutlineIcon />, text: 'Help Center' },
+    { icon: <CastIcon />, text: "Activate TV" },
+    { icon: <DownloadIcon />, text: "Download App" },
+    { icon: <HelpOutlineIcon />, text: "Help Center" },
   ];
+
+  // 🔹 Handle Navbar link clicks
+  const handleNavClick = (e, label) => {
+    if (label === "New In 2025") {
+      navigate("/latest-2025");
+    } else if (label === "Trailers") {
+      // 🔹 Fetch random trailer (movie or tv)
+      const types = ["movie", "tv"];
+      const randomType = types[Math.floor(Math.random() * types.length)];
+
+      fetch(
+        `https://api.themoviedb.org/3/${randomType}/popular?api_key=${TMDB_API_KEY}&language=en-US&page=1`
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          const items = data.results || [];
+          if (!items.length) return;
+
+          const randomItem = items[Math.floor(Math.random() * items.length)];
+          navigate(`/trailer/${randomType}/${randomItem.id}`, {
+            state: { item: randomItem, type: randomType },
+          });
+        })
+        .catch((err) => console.error("Error fetching random trailer:", err));
+    } else if (menuItems[label]) {
+      handleMenuOpen(e, label);
+    } else {
+      navigate("/");
+    }
+  };
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      {/* Top AppBar */}
-      <AppBar position="static" sx={{ backgroundColor: 'black', px: 2 }}>
+      <AppBar
+        position="fixed"
+        sx={{
+          backgroundColor: "black",
+          px: 2,
+          zIndex: 1000,
+        }}
+      >
         <Toolbar>
-          <Grid container alignItems="center" justifyContent="space-between" sx={{ width: '100%' }}>
+          <Grid
+            container
+            alignItems="center"
+            justifyContent="space-between"
+            sx={{ width: "100%" }}
+          >
             {/* Logo */}
-            <Grid size= {{lg:2, md:2, sm:2, xs:2}}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb:1.5 }}>
-                <img src={Logo} alt="MX Player Logo" style={{ height: '35px' }} />
+            <Grid item>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  mb: 1.5,
+                  cursor: "pointer",
+                }}
+                onClick={() => navigate("/")}
+              >
+                <img
+                  src={Logo}
+                  alt="MX Player Logo"
+                  style={{ height: "35px" }}
+                />
               </Box>
             </Grid>
 
-            {/* Nav Links - Desktop */}
-            {isDesktop && (
-              <Grid   size= {{lg:5, md:6, sm:6, xs:6}} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 3}}>
-                {navLinks.map((label, index) => (
+            {/* Nav Links */}
+            {!isMobile && (
+              <Grid
+                sx={{
+                  display: { lg: "flex", md: "flex", sm: "none", xs: "none" },
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: 3,
+                }}
+              >
+                {navLinks.map((label) => (
                   <Typography
-                    key={index}
-                    onMouseEnter={(e) => handleMenuOpen(e, label)}
+                    key={label}
+                    onMouseEnter={
+                      isDesktop && menuItems[label]
+                        ? (e) => handleMenuOpen(e, label)
+                        : undefined
+                    }
+                    onClick={(e) => handleNavClick(e, label)}
                     sx={{
-                      cursor: 'pointer',
-                      color: selectedMenu === label && isMenuOpen ? '#1e90ff' : 'white',
+                      cursor: "pointer",
+                      color:
+                        selectedMenu === label && isMenuOpen
+                          ? "#1e90ff"
+                          : "white",
                       fontWeight: 600,
-                      fontSize: '0.95rem',
-                      transition: 'color 0.3s',
-                      '&:hover': { color: '#1e90ff' },
-                      paddingBottom: '4px',
+                      fontSize: "0.95rem",
+                      transition: "color 0.3s",
+                      "&:hover": { color: "#1e90ff" },
+                      paddingBottom: "4px",
                       borderBottom:
                         selectedMenu === label && isMenuOpen
-                          ? '2px solid #1e90ff'
-                          : '2px solid transparent',
+                          ? "2px solid #1e90ff"
+                          : "2px solid transparent",
                     }}
                   >
                     {label}
@@ -137,61 +220,58 @@ const Navbar = () => {
               </Grid>
             )}
 
-            {/* Right Side */}
+            {/* Right side */}
             <Grid
-              item
-              lg={4}
-              md={5}
-              sm={6}
-              xs={4}
               sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'flex-end',
-                gap: {xs:1, sm:2, md:3}
+                display: "flex",
+                alignItems: "center",
+                gap: { xs: 1, sm: 2, md: 3},
               }}
             >
-              <IconButton sx={{ color: 'white' }}>
+              <IconButton sx={{ color: "white"}} onClick={() => navigate("/search")}>
                 <SearchIcon />
               </IconButton>
 
               {!isMobile && (
-                <Button
-                  variant="outlined"
-                  startIcon={<PlayCircleIcon />}
-                  sx={{
-                    color: '#fff',
-                    borderColor: '#d4af37',
-                    backgroundColor: '#2b2100',
-                    '&:hover': {
-                      borderColor: '#ffd700',
-                      backgroundColor: '#3a2e00',
-                    },
-                    fontSize: '0.75rem',
-                    textTransform: 'none',
-                    borderRadius: '20px',
-                    px: 1,
-                  }}
-                >
-                  <Typography variant='secondary' sx={{textAlign:'center',p:0.3}}>UPGRADE TO MX GOLD</Typography>
-                </Button>
+                  <Button
+                    variant="outlined"
+                    startIcon={<PlayCircleIcon />}
+                    sx={{
+                      color: "#fff",
+                      borderColor: "#d4af37",
+                      backgroundColor: "#2b2100",
+                      "&:hover": {
+                        borderColor: "#ffd700",
+                        backgroundColor: "#3a2e00",
+                      },
+                      fontSize: "0.75rem",
+                      textTransform: "none",
+                      borderRadius: "20px",
+                      px: 1,
+                    }}
+                    onClick={() => navigate("/mx-gold")}
+                  >
+                    <Typography variant="secondary" sx={{ textAlign: "center", p: 0.3 }}>
+                      UPGRADE TO MX GOLD
+                    </Typography>
+                  </Button>
+
               )}
 
               {!isMobile && (
                 <Typography
                   sx={{
-                    color: 'white',
+                    color: "white",
                     fontWeight: 600,
-                    cursor: 'pointer',
-                    fontSize: '0.95rem',
+                    cursor: "pointer",
+                    fontSize: "0.95rem",
                   }}
                 >
                   Login
                 </Typography>
               )}
 
-              {/* Menu icon triggers dropdown menu */}
-              <IconButton sx={{ color: 'white' }} onClick={handleDropdownOpen}>
+              <IconButton sx={{ color: "white" }} onClick={handleDropdownOpen}>
                 <MenuIcon />
               </IconButton>
             </Grid>
@@ -199,218 +279,141 @@ const Navbar = () => {
         </Toolbar>
       </AppBar>
 
-      {/* Dropdown menu for nav link submenu */}
-          <Menu
-            anchorEl={anchorEl}
-            open={isMenuOpen}
-            onClose={handleMenuClose}
-            TransitionComponent={Fade}
-            TransitionProps={{ timeout: 200 }}
-            MenuListProps={{
-              onMouseLeave: isDesktop ? handleMenuClose : undefined,
+      {/* Dropdown submenu for Movies/TV */}
+      <Menu
+        anchorEl={anchorEl}
+        open={isMenuOpen}
+        onClose={handleMenuClose}
+        TransitionComponent={Fade}
+        TransitionProps={{ timeout: 200 }}
+        PaperProps={{
+          sx: {
+            backgroundColor: "rgba(17, 24, 33, 0.9)",
+            color: "white",
+            boxShadow: "0px 4px 10px rgba(0,0,0,0.5)",
+            minWidth: "180px",
+            backdropFilter: "blur(6px)",
+            borderRadius: 1,
+            py: 0.5,
+          },
+          onMouseEnter: isDesktop
+            ? () => clearTimeout(closeTimer.current)
+            : undefined,
+          onMouseLeave: isDesktop ? handleMenuClose : undefined,
+        }}
+        sx={{ mt: isDesktop ? 1.5 : 0.5 }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        transformOrigin={{ vertical: "top", horizontal: "left" }}
+      >
+        {menuItems[selectedMenu]?.map((item) => (
+          <MenuItem
+            key={item}
+            onClick={() => {
+              handleMenuClose();
+              scrollToSection(item);
             }}
-            PaperProps={{
-              sx: {
-                backgroundColor: 'rgba(17, 24, 33, 0.8)',
-                color: 'white',
-                boxShadow: '0px 4px 8px rgba(0,0,0,0.3)',
-                minWidth: '150px',
-                backdropFilter:'blur(6px)'
+            sx={{
+              "&:hover": {
+                color: "#1e90ff",
+                backgroundColor: "transparent",
               },
-              onMouseEnter: () => clearTimeout(closeTimer.current),
-              onMouseLeave: isDesktop ? handleMenuClose : undefined,
-            }}
-            sx={{ mt: 2.5 }}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'left',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'left',
+              py: 1,
+              px: 2,
+              transition: "all 0.2s ease",
             }}
           >
-            {menuItems[selectedMenu]?.map((item, idx) => (
-              <MenuItem
-                key={idx}
-                onClick={handleMenuClose}
-                sx={{
-                  '&:hover': {
-                    backgroundColor: 'transparent',
-                  },
-                  px: 2,
-                  py: 1,
-                }}
-              >
-                <Typography
-                  variant="secondary"
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: '0.9rem',
-                    color: 'white',
-                    transition: 'color 0.2s',
-                    '&:hover': {
-                      color: '#1e90ff',
-                    },
-                  }}
-                >
-                  {item}
-                </Typography>
-              </MenuItem>
-            ))}
-          </Menu>
+            <Typography
+              variant="body2"
+              sx={{ fontWeight: 500, fontSize: "0.9rem" }}
+            >
+              {item}
+            </Typography>
+          </MenuItem>
+        ))}
+      </Menu>
 
-
-      {/* Dropdown menu replacing Drawer content */}
+      {/* Menu icon dropdown */}
       <Menu
         anchorEl={menuAnchorEl}
         open={isDropdownOpen}
         onClose={handleDropdownClose}
         PaperProps={{
           sx: {
-            backgroundColor: 'rgba(17, 24, 33, 0.95)',
-            color: 'white',
+            backgroundColor: "rgba(17, 24, 33, 0.95)",
+            color: "white",
             width: 350,
             borderRadius: 2,
-            paddingY: 1,
+            py: 1,
           },
         }}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
-        {/* Top Section Items */}
-        {dropdownItemsTop.map((item, idx) => (
+        {dropdownItemsTop.map((item) => (
           <MenuItem
-            key={idx}
+            key={item.text}
             onClick={handleDropdownClose}
-            sx={{
-              '&:hover': {
-                color: '#1e90ff',
-                backgroundColor: 'transparent',
-              },
-            }}
+            sx={{ "&:hover": { color: "#1e90ff" } }}
           >
-            <ListItemIcon sx={{ color: 'inherit', minWidth: 32 }}>
+            <ListItemIcon sx={{ color: "inherit", minWidth: 32 }}>
               {item.icon}
             </ListItemIcon>
             <ListItemText>{item.text}</ListItemText>
           </MenuItem>
         ))}
 
-        {/* Kids Mode Switch */}
-          <MenuItem
+        {/* Kids Mode */}
+        <MenuItem
+          sx={{
+            justifyContent: "space-between",
+            alignItems: "center",
+            py: 1.5,
+            px: 2,
+            "&:hover .hover-color": { color: "#1e90ff" },
+          }}
+        >
+          <Box
+            className="hover-color"
             sx={{
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              py: 1.5,
-              px: 2,
-              minWidth: 280,
-              '&:hover .hover-color': {
-                color: '#1e90ff', // Blue on hover
-              }
+              display: "flex",
+              alignItems: "center",
+              gap: 1.2,
+              color: kidsMode ? "gold" : "white",
+              transition: "color 0.2s ease",
             }}
           >
-            <Box
-              className="hover-color"
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1.2,
-                color: kidsMode ? 'gold' : 'white',
-                transition: 'color 0.2s ease'
-              }}
-            >
-              <EmojiEmotionsIcon />
-              <Box sx={{ lineHeight: 1.2 }}>
-                <Typography variant="body1" fontWeight={500}>
-                  Kids Mode
-                </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{ display: 'block', whiteSpace: 'normal' }}
-                >
-                  Enable content for users under 13 by turning it on.
-                </Typography>
-              </Box>
+            <EmojiEmotionsIcon />
+            <Box sx={{ lineHeight: 1.2 }}>
+              <Typography variant="body1" fontWeight={500}>
+                Kids Mode
+              </Typography>
+              <Typography variant="caption">
+                Enable content for users under 13 by turning it on.
+              </Typography>
             </Box>
-          
-            <Switch
-              checked={kidsMode}
-              onChange={() => setKidsMode(!kidsMode)}
-              size="small"
-            />
-          </MenuItem>
+          </Box>
+          <Switch
+            checked={kidsMode}
+            onChange={() => setKidsMode(!kidsMode)}
+            size="small"
+          />
+        </MenuItem>
 
+        <Divider sx={{ backgroundColor: "#333", my: 1 }} />
 
-        <Divider sx={{ backgroundColor: '#333', my: 1 }} />
-
-        {/* Bottom Section Items */}
-        {dropdownItemsBottom.map((item, idx) => (
+        {dropdownItemsBottom.map((item) => (
           <MenuItem
-            key={idx}
+            key={item.text}
             onClick={handleDropdownClose}
-            sx={{
-              '&:hover': {
-                color: '#1e90ff',
-                backgroundColor: 'transparent',
-              },
-            }}
+            sx={{ "&:hover": { color: "#1e90ff" } }}
           >
-            <ListItemIcon sx={{ color: 'inherit', minWidth: 32 }}>
+            <ListItemIcon sx={{ color: "inherit", minWidth: 32 }}>
               {item.icon}
             </ListItemIcon>
             <ListItemText>{item.text}</ListItemText>
           </MenuItem>
         ))}
       </Menu>
-
-      {/* Bottom Nav for Tablet and Mobile */}
-      {(isTablet || isMobile) && (
-        <Grid
-          container
-          spacing={2}
-          px={2}
-          py={1}
-          sx={{
-            backgroundColor: '#111821',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-around',
-          }}
-        >
-          <Grid item>
-            <HomeIcon sx={{ color: '#1e90ff', fontSize: '1.5rem' }} />
-          </Grid>
-          {navLinks.map((label, index) => (
-            <Grid
-              item
-              key={index}
-              sx={{ textAlign: 'center' }}
-              onClick={(e) => handleMenuOpen(e, label)}
-            >
-              <Typography
-                sx={{
-                  color: selectedMenu === label && isMenuOpen ? '#1e90ff' : 'white',
-                  fontWeight: 600,
-                  fontSize: '0.75rem',
-                  cursor: 'pointer',
-                  '&:hover': {
-                    color: '#1e90ff',
-                  },
-                }}
-              >
-                {label}
-              </Typography>
-            </Grid>
-          ))}
-        </Grid>
-      )}
     </Box>
   );
 };

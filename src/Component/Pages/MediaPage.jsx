@@ -10,20 +10,33 @@ import {
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { useNavigate } from "react-router-dom"; // ⬅️ Import navigation
+import { useNavigate } from "react-router-dom";
 
 const FALLBACK_POSTER = "https://via.placeholder.com/200x300?text=No+Image";
 const TMDB_API_KEY = "ce759924c0c73922a3e4cf611fbbc05c";
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 
-// 🔹 Fetch trailer key from TMDB
-async function fetchTMDBTrailer(movieId) {
+const MOVIE_GENRES = {
+  Action: 28,
+  Adventure: 12,
+  Comedy: 35,
+  Horror: 27,
+};
+
+const TV_GENRES = {
+  Action: 10759,
+  Comedy: 35,
+  Drama: 18,
+};
+
+// 🔹 Fetch trailer (movie or tv)
+async function fetchTMDBTrailer(id, type) {
   try {
     const res = await fetch(
-      `${TMDB_BASE_URL}/movie/${movieId}/videos?api_key=${TMDB_API_KEY}&language=en-US`
+      `${TMDB_BASE_URL}/${type}/${id}/videos?api_key=${TMDB_API_KEY}&language=en-US`
     );
     const data = await res.json();
-    const trailer = data.results.find(
+    const trailer = data.results?.find(
       (vid) => vid.type === "Trailer" && vid.site === "YouTube"
     );
     return trailer ? trailer.key : null;
@@ -33,23 +46,26 @@ async function fetchTMDBTrailer(movieId) {
   }
 }
 
-// 🔹 Static genres
-const GENRES = {
-  Action: 28,
-  Adventure: 12,
-  Comedy: 35,
-  Horror: 27,
-};
-
-// 🔹 MovieSlider component
-const MovieSlider = ({ title, movies, onViewAll }) => {
+// 🔹 Generic Slider
+const MediaSlider = ({ title, items, type, onViewAll }) => {
   const scrollRef = useRef(null);
   const [showLeft, setShowLeft] = useState(false);
   const [showRight, setShowRight] = useState(true);
   const [activeTrailer, setActiveTrailer] = useState(null);
   const [trailerIds, setTrailerIds] = useState({});
-  const [filteredMovies, setFilteredMovies] = useState(movies);
-  const navigate = useNavigate(); // ⬅️ Hook for navigation
+  const [filteredItems, setFilteredItems] = useState([]);
+  const navigate = useNavigate();
+
+  // Filter valid items
+  useEffect(() => {
+    const validItems = items.filter((item) =>
+      type === "movie"
+        ? item.poster_path && item.title && item.release_date
+        : item.poster_path && item.name && item.first_air_date
+    );
+    setFilteredItems(validItems);
+    checkScrollPosition();
+  }, [items, type]);
 
   const checkScrollPosition = () => {
     if (scrollRef.current) {
@@ -58,10 +74,6 @@ const MovieSlider = ({ title, movies, onViewAll }) => {
       setShowRight(scrollLeft + clientWidth < scrollWidth - 1);
     }
   };
-
-  useEffect(() => {
-    checkScrollPosition();
-  }, [movies]);
 
   const scroll = (direction) => {
     if (scrollRef.current) {
@@ -73,38 +85,33 @@ const MovieSlider = ({ title, movies, onViewAll }) => {
     }
   };
 
-  // ✅ Play trailer immediately on hover
-  const handleMouseEnter = async (movie) => {
-    if (!trailerIds[movie.id]) {
-      const id = await fetchTMDBTrailer(movie.id);
-
-      // 🔸 Remove card if no trailer found
+  // ▶️ Auto-play trailer
+  const handleMouseEnter = async (item) => {
+    if (!trailerIds[item.id]) {
+      const id = await fetchTMDBTrailer(item.id, type);
       if (!id) {
-        setFilteredMovies((prev) => prev.filter((m) => m.id !== movie.id));
+        setFilteredItems((prev) => prev.filter((i) => i.id !== item.id));
         return;
       }
-
-      setTrailerIds((prev) => ({ ...prev, [movie.id]: id }));
+      setTrailerIds((prev) => ({ ...prev, [item.id]: id }));
     }
-
-    setActiveTrailer(movie.id);
+    setActiveTrailer(item.id);
   };
 
-  // ✅ Pause trailer instantly on mouse leave
-  const handleMouseLeave = (movieId) => {
+  // ⏹ Stop trailer
+  const handleMouseLeave = (itemId) => {
     setActiveTrailer(null);
-    const iframe = document.getElementById(`trailer-${movieId}`);
-    if (iframe && iframe.contentWindow) {
-      iframe.contentWindow.postMessage(
-        '{"event":"command","func":"stopVideo","args":""}',
-        "*"
-      );
+    const iframe = document.getElementById(`trailer-${type}-${itemId}`);
+    if (iframe) {
+      // Recreate iframe node instead of reassigning src
+      const newIframe = iframe.cloneNode(true);
+      iframe.parentNode.replaceChild(newIframe, iframe);
     }
   };
 
   return (
     <Box sx={{ position: "relative", mx: 3, mb: 5 }}>
-      {/* Title + ViewAll */}
+      {/* Title + View All */}
       <Box sx={{ display: "flex", alignItems: "center", mb: 6 }}>
         <Typography variant="h5" fontWeight="bold" color="white">
           {title}
@@ -184,7 +191,7 @@ const MovieSlider = ({ title, movies, onViewAll }) => {
         </IconButton>
       )}
 
-      {/* Movie Cards */}
+      {/* Media Cards */}
       <Box
         ref={scrollRef}
         onScroll={checkScrollPosition}
@@ -196,13 +203,18 @@ const MovieSlider = ({ title, movies, onViewAll }) => {
           padding: "10px 0",
         }}
       >
-        {filteredMovies.map((movie) => {
-          const isActive = activeTrailer === movie.id;
-          const videoId = trailerIds[movie.id];
+        {filteredItems.map((item) => {
+          const isActive = activeTrailer === item.id;
+          const videoId = trailerIds[item.id];
+          const titleText = type === "movie" ? item.title : item.name;
+          const dateText =
+            type === "movie"
+              ? item.release_date?.split("-")[0]
+              : item.first_air_date?.split("-")[0];
 
           return (
             <Card
-              key={movie.id}
+              key={item.id}
               sx={{
                 width: 180,
                 height: 300,
@@ -213,10 +225,12 @@ const MovieSlider = ({ title, movies, onViewAll }) => {
                 flex: "0 0 auto",
                 perspective: "1000px",
                 cursor: "pointer",
+                transformStyle: "preserve-3d",
+                transition: "transform 0.8s ease",
               }}
-              onMouseEnter={() => handleMouseEnter(movie)}
-              onMouseLeave={() => handleMouseLeave(movie.id)}
-              onClick={() => navigate(`/trailer/${movie.id}`)} // ⬅️ Click to go fullscreen trailer
+              onMouseEnter={() => handleMouseEnter(item)}
+              onMouseLeave={() => handleMouseLeave(item.id)}
+              onClick={() => navigate(`/trailer/${type}/${item.id}`)}
             >
               <Box
                 sx={{
@@ -224,11 +238,11 @@ const MovieSlider = ({ title, movies, onViewAll }) => {
                   width: "100%",
                   height: "100%",
                   transformStyle: "preserve-3d",
-                  transition: "transform 0.8s",
+                  transition: "transform 0.8s ease",
                   transform: isActive ? "rotateY(180deg)" : "rotateY(0deg)",
                 }}
               >
-                {/* Front: Poster */}
+                {/* Front */}
                 <Box
                   sx={{
                     position: "absolute",
@@ -241,11 +255,11 @@ const MovieSlider = ({ title, movies, onViewAll }) => {
                     component="img"
                     height="240"
                     image={
-                      movie.poster_path
-                        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+                      item.poster_path
+                        ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
                         : FALLBACK_POSTER
                     }
-                    alt={movie.title}
+                    alt={titleText}
                     sx={{
                       borderRadius: "8px 8px 0 0",
                       objectFit: "cover",
@@ -263,15 +277,15 @@ const MovieSlider = ({ title, movies, onViewAll }) => {
                         whiteSpace: "nowrap",
                       }}
                     >
-                      {movie.title}
+                      {titleText}
                     </Typography>
                     <Typography variant="body2" color="white">
-                      {movie.release_date?.split("-")[0]}
+                      {dateText}
                     </Typography>
                   </CardContent>
                 </Box>
 
-                {/* Back: YouTube Trailer */}
+                {/* Back (Trailer) */}
                 {videoId && (
                   <Box
                     sx={{
@@ -285,14 +299,15 @@ const MovieSlider = ({ title, movies, onViewAll }) => {
                     }}
                   >
                     <iframe
-                      id={`trailer-${movie.id}`}
+                      id={`trailer-${type}-${item.id}`}
                       width="100%"
                       height="100%"
-                      src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&enablejsapi=1`}
-                      title="Trailer"
+                      src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&enablejsapi=1&controls=0&showinfo=0&modestbranding=1`}
+                      title={`${titleText} Trailer`}
                       frameBorder="0"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
+                      style={{ borderRadius: "8px" }}
                     ></iframe>
                   </Box>
                 )}
@@ -305,51 +320,79 @@ const MovieSlider = ({ title, movies, onViewAll }) => {
   );
 };
 
-// 🔹 Main MoviesPage component
-const MoviesPage = () => {
-  const [genreMovies, setGenreMovies] = useState({});
+// 🔹 Main Media Page
+const MediaPage = () => {
+  const [moviesByGenre, setMoviesByGenre] = useState({});
+  const [tvByGenre, setTvByGenre] = useState({});
 
   useEffect(() => {
-    const fetchMoviesByGenre = async (genreId) => {
+    const fetchByGenre = async (genreId, type) => {
+      const endpoint =
+        type === "movie"
+          ? `${TMDB_BASE_URL}/discover/movie`
+          : `${TMDB_BASE_URL}/discover/tv`;
       try {
         const res = await fetch(
-          `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&with_genres=${genreId}&language=en-US&page=1`
+          `${endpoint}?api_key=${TMDB_API_KEY}&with_genres=${genreId}&language=en-US&page=1`
         );
         const data = await res.json();
         return data?.results || [];
       } catch (err) {
-        console.error("Failed to fetch genre movies:", err);
+        console.error(`Failed to fetch ${type} by genre:`, err);
         return [];
       }
     };
 
-    const loadAllGenres = async () => {
-      let all = {};
-      for (const [name, id] of Object.entries(GENRES)) {
-        all[name] = await fetchMoviesByGenre(id);
+    const loadMedia = async () => {
+      const movieResults = {};
+      const tvResults = {};
+
+      for (const [name, id] of Object.entries(MOVIE_GENRES)) {
+        movieResults[name] = await fetchByGenre(id, "movie");
       }
-      setGenreMovies(all);
+      for (const [name, id] of Object.entries(TV_GENRES)) {
+        tvResults[name] = await fetchByGenre(id, "tv");
+      }
+
+      setMoviesByGenre(movieResults);
+      setTvByGenre(tvResults);
     };
 
-    loadAllGenres();
+    loadMedia();
   }, []);
 
-  const handleViewAll = (category) => {
-    alert(`View all ${category} movies`);
+   const navigate = useNavigate();
+
+  const handleViewAll = (genre, type) => {
+    navigate(`/view-all/${type}/${genre}`);
   };
+   
 
   return (
     <Box sx={{ bgcolor: "#111", minHeight: "100vh", pb: 4 }}>
-      {Object.entries(genreMovies).map(([genreName, movies]) => (
-        <MovieSlider
-          key={genreName}
-          title={`${genreName} Movies`}
-          movies={movies.slice(0, 15)}
-          onViewAll={() => handleViewAll(genreName)}
-        />
+      {Object.entries(moviesByGenre).map(([genreName, items]) => (
+        <Box key={genreName} id={`${genreName}-movies`} sx={{ scrollMarginTop: "100px" }}>
+          <MediaSlider
+            title={`${genreName} Movies`}
+            items={items.slice(0, 15)}
+            type="movie"
+            onViewAll={() => handleViewAll(genreName, "movie")}
+          />
+        </Box>
+      ))}
+
+      {Object.entries(tvByGenre).map(([genreName, items]) => (
+        <Box key={genreName} id={`${genreName}-tv`} sx={{ scrollMarginTop: "100px" }}>
+          <MediaSlider
+            title={`${genreName} TV Shows`}
+            items={items.slice(0, 15)}
+            type="tv"
+            onViewAll={() => handleViewAll(genreName, "tv")}
+          />
+        </Box>
       ))}
     </Box>
   );
 };
 
-export default MoviesPage;
+export default MediaPage;

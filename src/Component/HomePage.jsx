@@ -1,16 +1,16 @@
-import React from "react";
-import Navbar from './Navbar';
+import React, { useEffect } from "react";
 import HeaderPage from "./Pages/HeaderPage";
-import MovieList from "./Pages/MovieList";
-import Footer from "./Footer";
+import  MediaPage from "./Pages/MediaPage";
 
 const HomePage = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
-    <div style={{backgroundcolor:'black'}}>
-      <Navbar />
+    <div style={{ backgroundColor: "black" }}>
       <HeaderPage />
-      <MovieList />
-      <Footer />
+      < MediaPage/>
     </div>
   );
 };

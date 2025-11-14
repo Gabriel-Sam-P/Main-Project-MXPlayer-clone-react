@@ -25,61 +25,61 @@ export const MxGoldPage = () => {
   const [plan, setPlan] = useState('annual');
   const [payment, setPayment] = useState('upi');
 
-  const meticulousYellow = '#e09f3e';
-  const glowEffect = `0 0 0px ${meticulousYellow}`;
+  const goldColor = '#e09f3e';
+  const glowEffect = `0 0 15px ${goldColor}`;
 
   const handleClick = (event) => {
     event.preventDefault();
   };
 
   return (
-    <Box sx={{ flexGrow: 1, backgroundColor: '#2E2925', minHeight: '100vh', color: '#fff', py: 10 , width:"100%"}}>
+    <Box sx={{ flexGrow: 1, backgroundColor: '#2E2925', minHeight: '100vh', color: '#fff',py:10, pb: 10 }}>
       <Grid container>
-        {/* Header */}
-        <Grid container>
-          <Grid
-            size={{ lg: 12, md: 12, sm: 12, xs: 12 }}
-            sx={{
-              height: '80px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              px: { lg: 6, md: 5, sm: 3, xs: 2 }, // responsive padding
-              borderBottom: '1px solid rgba(255,255,255,0.1)',
-            }}
-          >
-            {/* Left section */}
-            <Grid  size={{ lg: 5, md: 3, sm: 3, xs: 2 }} display="flex" alignItems="center">
-              <IconButton>
-                <ArrowBackIcon sx={{ color: 'white' }} />
-              </IconButton>
-              <Typography
-                variant="h6"
-                sx={{
-                  ml: 2,
-                  fontSize: { lg: "1.5rem", md: "1.3rem", sm: "1.1rem", xs: ".8rem" },
-                  fontWeight: 700,
-                  color: 'white',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                Amazon MX Player Memberships
-              </Typography>
-            </Grid>
-        
-            {/* Right section */}
-            <Grid  size={{ lg: 3, md: 3, sm: 3, xs: 2 }} display="flex" alignItems="center">
-              <IconButton sx={{ gap: 1 }}>
-                <HelpOutlineIcon sx={{ fontSize: { lg: "1.5rem", md: "1.3rem", sm: "1.1rem", xs: ".8rem" },color: 'white' }} />
-                <Typography sx={{ fontWeight: 600,fontSize: { lg: "1.5rem", md: "1.3rem", sm: "1.1rem", xs: ".8rem" }, color: 'white' }}>FAQs</Typography>
-              </IconButton>
-            </Grid>
-          </Grid>
-        </Grid>
 
+        {/* Header */}
+        <Box
+          sx={{
+            height: "70px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            px: { lg: 6, md: 5, sm: 3, xs: 2 },
+            borderBottom: "1px solid rgba(255,255,255,0.1)",
+            width: "100%",
+          }}
+        >
+          {/* Left Section */}
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <IconButton>
+              <ArrowBackIcon sx={{ color: "white" }} />
+            </IconButton>
+            <Typography
+              sx={{
+                ml: 2,
+                fontWeight: 700,
+                fontSize: { lg: "1.4rem", md: "1.2rem", sm: "1rem", xs: ".85rem" },
+              }}
+            >
+              Amazon MX Player Memberships
+            </Typography>
+          </Box>
+
+          {/* Right Section */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <HelpOutlineIcon sx={{ color: "#fff", fontSize: { lg: "1.5rem", md: "1.3rem", sm: "1rem", xs: ".9rem" } }} />
+            <Typography
+              sx={{
+                fontWeight: 600,
+                fontSize: { lg: "1.2rem", md: "1rem", sm: ".9rem", xs: ".8rem" },
+              }}
+            >
+              FAQs
+            </Typography>
+          </Box>
+        </Box>
 
         {/* Breadcrumb */}
-        <Grid sx={{ px: { lg: 21, md: 21, sm: 10, xs: 4 }, py: 4 }}>
+        <Grid sx={{ px: { lg: 21, md: 15, sm: 10, xs: 4 }, py: 3 }}>
           <Breadcrumbs
             separator={<NavigateNextIcon fontSize="small" sx={{ color: '#9e9e9e' }} />}
             aria-label="breadcrumb"
@@ -102,29 +102,32 @@ export const MxGoldPage = () => {
 
         {/* Main Content */}
         <Grid container justifyContent="center" spacing={4}>
-          {/* Left Section */}
-          <Grid size= {{lg:4, md:4}} display={{ lg: "block", md: 'block', sm: 'none', xs: 'none' }}>
-            <Box component="img" src={log} alt="MX Logo" sx={{ width: "45%", mb: 3 }} />
-            <Box component="img" src={Gold} alt="MX Gold Promo" sx={{ width: '75%', mb: 3 }} />
+
+          {/* Left Section (Image) */}
+          <Grid size= {{lg:4, md:4}} display={{ lg: "block", md: "block", sm: "none", xs: "none" }}>
+            <Box component="img" src={log} alt="MX Logo" sx={{ width: "50%", mb: 2 }} />
+            <Box component="img" src={Gold} alt="MX Gold Promo" sx={{ width: '90%' }} />
           </Grid>
 
-          <Grid size= {{sm:11, xs:10}} display={{ lg: "none", md: 'none', sm: 'block', xs: 'block' }}>
-            <Box component="img" src={sm} alt="MX Logo" sx={{ width: "100%" }} />
+          {/* Mobile Image */}
+          <Grid size= {{sm:11, xs:10}} display={{ lg: "none", md: "none", sm: "block", xs: "block" }}>
+            <Box component="img" src={sm} alt="MX Mobile" sx={{ width: "100%", borderRadius: "10px" }} />
           </Grid>
 
           {/* Right Section */}
-          <Grid size= {{lg:5, md:4, xs:12}}>
+          <Grid size= {{lg:5, md:5, sm:11, xs:11}}>
             <Card
               sx={{
                 backgroundColor: '#1E1A16',
                 color: 'white',
                 borderRadius: '12px',
                 border: '1px solid #3a332e',
-                height:"600px",
                 p: 3,
+                boxShadow: `0 0 20px rgba(0,0,0,0.4)`
               }}
             >
               <CardContent>
+
                 {/* Plan Selection */}
                 <Typography
                   variant="h6"
@@ -135,11 +138,11 @@ export const MxGoldPage = () => {
                   Choose Your Plan
                 </Typography>
 
-                {/* Annual */}
+                {/* Annual Plan */}
                 <Box
                   onClick={() => setPlan('annual')}
                   sx={{
-                    border: plan === 'annual' ? `2px solid ${meticulousYellow}` : '2px solid #444',
+                    border: plan === 'annual' ? `2px solid ${goldColor}` : '2px solid #444',
                     borderRadius: '10px',
                     backgroundColor: plan === 'annual' ? '#3a332e' : '#2E2925',
                     p: 2,
@@ -154,27 +157,27 @@ export const MxGoldPage = () => {
                 >
                   <Box display="flex" alignItems="center" gap={2}>
                     {plan === 'annual' ? (
-                      <CheckCircleIcon sx={{ color: meticulousYellow }} />
+                      <CheckCircleIcon sx={{ color: goldColor }} />
                     ) : (
-                      <RadioButtonUncheckedIcon sx={{ color: meticulousYellow }} />
+                      <RadioButtonUncheckedIcon sx={{ color: goldColor }} />
                     )}
-                    <Typography sx={{ fontWeight: 600, fontSize: '1.05rem' }}>Annual</Typography>
+                    <Typography sx={{ fontWeight: 600 }}>Annual</Typography>
                   </Box>
-                  <Typography sx={{ fontWeight: 700, fontSize: '1.05rem' }}>
+                  <Typography sx={{ fontWeight: 700 }}>
                     ₹499 <span style={{ color: '#aaa', fontWeight: 400 }}>/ year</span>
                   </Typography>
                 </Box>
 
-                {/* Quarterly */}
+                {/* Monthly Plan */}
                 <Box
-                  onClick={() => setPlan('quarterly')}
+                  onClick={() => setPlan('monthly')}
                   sx={{
-                    border: plan === 'quarterly' ? `2px solid ${meticulousYellow}` : '2px solid #444',
+                    border: plan === 'monthly' ? `2px solid ${goldColor}` : '2px solid #444',
                     borderRadius: '10px',
-                    backgroundColor: plan === 'quarterly' ? '#3a332e' : '#2E2925',
+                    backgroundColor: plan === 'monthly' ? '#3a332e' : '#2E2925',
                     p: 2,
                     mb: 2,
-                    boxShadow: plan === 'quarterly' ? glowEffect : 'none',
+                    boxShadow: plan === 'monthly' ? glowEffect : 'none',
                     cursor: 'pointer',
                     display: 'flex',
                     justifyContent: 'space-between',
@@ -183,33 +186,20 @@ export const MxGoldPage = () => {
                   }}
                 >
                   <Box display="flex" alignItems="center" gap={2}>
-                    {plan === 'quarterly' ? (
-                      <CheckCircleIcon sx={{ color: meticulousYellow }} />
+                    {plan === 'monthly' ? (
+                      <CheckCircleIcon sx={{ color: goldColor }} />
                     ) : (
-                      <RadioButtonUncheckedIcon sx={{ color: meticulousYellow }} />
+                      <RadioButtonUncheckedIcon sx={{ color: goldColor }} />
                     )}
-                    <Typography sx={{ fontWeight: 600, fontSize: '1.05rem' }}>Quarterly</Typography>
+                    <Typography sx={{ fontWeight: 600 }}>Monthly</Typography>
                   </Box>
-                  <Box display="flex" alignItems="center" gap={1}>
-                    <Typography
-                      sx={{ textDecoration: 'line-through', color: '#aaa', fontSize: '0.95rem' }}
-                    >
-                      ₹299
-                    </Typography>
-                    <Typography sx={{ fontWeight: 700, fontSize: '1.05rem' }}>
-                      ₹199 <span style={{ color: '#aaa', fontWeight: 400 }}>/ 3 months</span>
-                    </Typography>
-                  </Box>
+                  <Typography sx={{ fontWeight: 700 }}>
+                    ₹99 <span style={{ color: '#aaa', fontWeight: 400 }}>/ month</span>
+                  </Typography>
                 </Box>
 
                 {/* Payment Section */}
-                <Typography
-                  variant="h6"
-                  fontWeight={700}
-                  mt={4}
-                  mb={2}
-                  sx={{ color: '#fff', fontSize: '1.2rem' }}
-                >
+                <Typography variant="h6" fontWeight={700} mt={4} mb={2} sx={{ color: '#fff', fontSize: '1.2rem' }}>
                   Select Payment Method
                 </Typography>
 
@@ -218,11 +208,11 @@ export const MxGoldPage = () => {
                   <Box
                     onClick={() => setPayment('upi')}
                     sx={{
-                      border: payment === 'upi' ? `0px solid ${meticulousYellow}` : '0px solid #444',
+                      border: payment === 'upi' ? `2px solid ${goldColor}` : '2px solid #444',
                       borderRadius: '10px',
                       backgroundColor: payment === 'upi' ? '#3a332e' : '#2E2925',
                       flex: 1,
-                      p: 1.8,
+                      p: 2,
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
@@ -232,23 +222,21 @@ export const MxGoldPage = () => {
                     }}
                   >
                     <Box display="flex" alignItems="center" gap={1.5}>
-                      <Box component="img" src={upiLogo} alt="UPI" sx={{ width: 30 }} />
+                      <Box component="img" src={upiLogo} alt="UPI" sx={{ width: 25 }} />
                       <Typography fontWeight={600}>UPI</Typography>
                     </Box>
-                    {payment === 'upi' &&
-                      <CheckCircleIcon sx={{ color: meticulousYellow }} />
-                    }
+                    {payment === 'upi' && <CheckCircleIcon sx={{ color: goldColor }} />}
                   </Box>
 
                   {/* Card */}
                   <Box
                     onClick={() => setPayment('card')}
                     sx={{
-                      border: payment === 'card' ? `2px solid ${meticulousYellow}` : '1px solid #444',
+                      border: payment === 'card' ? `2px solid ${goldColor}` : '2px solid #444',
                       borderRadius: '10px',
                       backgroundColor: payment === 'card' ? '#3a332e' : '#2E2925',
                       flex: 1,
-                      p: 1.8,
+                      p: 2,
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
@@ -261,9 +249,7 @@ export const MxGoldPage = () => {
                       <CreditCardIcon sx={{ fontSize: 26 }} />
                       <Typography fontWeight={600}>Card</Typography>
                     </Box>
-                    {payment === 'card' &&
-                      <CheckCircleIcon sx={{ color: meticulousYellow }} />
-                    }
+                    {payment === 'card' && <CheckCircleIcon sx={{ color: goldColor }} />}
                   </Box>
                 </Box>
 
@@ -272,15 +258,18 @@ export const MxGoldPage = () => {
                   variant="contained"
                   fullWidth
                   sx={{
-                    backgroundColor: meticulousYellow,
+                    backgroundColor: goldColor,
                     color: '#000',
                     fontWeight: 700,
                     mt: 3,
                     py: 1.3,
                     borderRadius: '10px',
                     fontSize: '1rem',
-                    boxShadow: `0 0 20px ${meticulousYellow}`,
-                    '&:hover': { backgroundColor: '#FFE082', boxShadow: `0 0 25px ${meticulousYellow}` },
+                    boxShadow: `0 0 15px ${goldColor}`,
+                    '&:hover': {
+                      backgroundColor: '#f0b84d',
+                      boxShadow: `0 0 25px ${goldColor}`,
+                    },
                   }}
                 >
                   Join MX Gold
@@ -289,10 +278,11 @@ export const MxGoldPage = () => {
                 {/* Info Section */}
                 <Typography variant="body2" align="center" mt={2} sx={{ color: '#aaa' }}>
                   Already a Member?{' '}
-                  <Link href="#" underline="hover" sx={{ color: meticulousYellow }}>
+                  <Link href="#" underline="hover" sx={{ color: goldColor }}>
                     Login
                   </Link>
                 </Typography>
+
                 <Typography
                   variant="caption"
                   display="block"

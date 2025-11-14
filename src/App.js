@@ -9,6 +9,7 @@ import TrailerVideoPage from "./Component/Pages/TrailerVideoPage";
 import Footer from "./Component/Footer";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 
+
 // 🔹 Layout Wrapper to handle conditional Navbar/Footer
 function Layout() {
   const location = useLocation();
